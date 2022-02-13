@@ -53,6 +53,14 @@
         {
           "name": "timestamp",
           "type": "string"
+        },
+        {
+          "name": "firstImg",
+          "type": "string"
+        },
+        {
+          "name": "secondImg",
+          "type": "string"
         }
       ]
     },
@@ -93,6 +101,14 @@
         {
           "name": "currentCount",
           "type": "u16"
+        },
+        {
+          "name": "firstImg",
+          "type": "string"
+        },
+        {
+          "name": "secondImg",
+          "type": "string"
         }
       ]
     },
@@ -212,6 +228,14 @@
           {
             "name": "furtherCount",
             "type": "u16"
+          },
+          {
+            "name": "firstImg",
+            "type": "string"
+          },
+          {
+            "name": "secondImg",
+            "type": "string"
           }
         ]
       }

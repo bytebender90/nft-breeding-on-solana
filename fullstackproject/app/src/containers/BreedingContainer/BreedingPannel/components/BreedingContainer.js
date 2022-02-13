@@ -40,7 +40,6 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
   const [parent, setParent] = useState("");
 
   const wallet = useWallet();
-  console.log("111111111111111111", nftLists?.length)
 
   const { REACT_APP_WORLD_TIME_API_URL, REACT_APP_ELAPSED_TIME, REACT_APP_SOLANA_NETWORK, REACT_APP_TOKEN_ACCOUNT } = process.env;
 
@@ -64,10 +63,22 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
       const requestedAt = account.timestamp; // timestamp
       const isCreated = account.isConfirmed; // status of breeding request
       const furtherCount = account.furtherCount; // number of NFTs after breeding
+      const firstImg = account.firstImg;
+      const secondImg = account.secondImg;
+      const firstNft = { NFTData: { image: firstImg } };
+      const secNft = { NFTData: { image: secondImg } };
 
       const timeRemaining = requestedAt
         ? await getTimeRemaining(requestedAt)
         : 0;
+
+      if (timeRemaining > 0) {
+        setFirstNft(firstNft);
+        setSecNft(secNft)
+      } else {
+        setFirstNft(null);
+        setSecNft(null)
+      }
 
       setUserExist(account.isConfirmed);
       if (timeRemaining > 0) {
@@ -124,6 +135,8 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         provider.wallet.publicKey.toString(),
         nftLists?.length,
         requestedAt,
+        firstNft?.NFTData?.image,
+        secNft?.NFTData?.image,
         {
           accounts: {
             user,
@@ -169,15 +182,20 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         program.provider.wallet
       );
 
-      await program.rpc.updateUser(requestedAt, nftLists?.length, {
-        accounts: {
-          user,
-          author: program.provider.wallet.publicKey,
-          mint,
-          from,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        },
-      });
+      await program.rpc.updateUser(
+        requestedAt,
+        nftLists?.length,
+        firstNft?.NFTData?.image,
+        secNft?.NFTData?.image,
+        {
+          accounts: {
+            user,
+            author: program.provider.wallet.publicKey,
+            mint,
+            from,
+            tokenProgram: TOKEN_PROGRAM_ID,
+          },
+        });
       const account = await program.account.user.fetch(user);
 
       const timeRemaining = REACT_APP_ELAPSED_TIME * 60 * 60;

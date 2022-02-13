@@ -16,12 +16,16 @@ mod mysolanaapp {
         name: String,
         initial_count: u16,
         timestamp: String,
+        first_img: String,
+        second_img: String,
     ) -> Result<()> {
         ctx.accounts.user.name = name;
         ctx.accounts.user.timestamp = timestamp;
         ctx.accounts.user.is_confirmed = true;
         ctx.accounts.user.initial_count = initial_count;
         ctx.accounts.user.further_count = initial_count + 1;
+        ctx.accounts.user.first_img = first_img;
+        ctx.accounts.user.second_img = second_img;
         ctx.accounts.user.authority = *ctx.accounts.authority.key;
         ctx.accounts.user.bump = *ctx.bumps.get("user").unwrap();
 
@@ -54,10 +58,14 @@ mod mysolanaapp {
         ctx: Context<UpdateUser>,
         timestamp: String,
         current_count: u16,
+        first_img: String,
+        second_img: String,
     ) -> Result<()> {
         ctx.accounts.user.timestamp = timestamp;
         ctx.accounts.user.is_confirmed = true;
         ctx.accounts.user.further_count = current_count + 1;
+        ctx.accounts.user.first_img = first_img;
+        ctx.accounts.user.second_img = second_img;
 
         let from_info = &mut ctx.accounts.author;
         let from_token_info = &mut ctx.accounts.from;
@@ -219,6 +227,8 @@ pub struct User {
     initial_count: u16,
     current_count: u16,
     further_count: u16,
+    first_img: String,
+    second_img: String,
 }
 
 #[account(zero_copy)]
