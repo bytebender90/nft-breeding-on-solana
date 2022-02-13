@@ -33,11 +33,11 @@ const NftListsModal = (props) => {
               })}
             </Row>
           ) : (
-            <p>
+            <div>
               <Spinner animation="border" role="status">
                 <span className="visually-hidden">Loading...</span>
               </Spinner>
-            </p>
+            </div>
           )}
         </Modal.Body>
       </Modal>

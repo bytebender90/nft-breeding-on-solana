@@ -10,7 +10,7 @@ require("@solana/wallet-adapter-react-ui/styles.css");
 
 function BreedingPannel({ setIsExpired }) {
   // eslint-disable-next-line no-unused-vars
-  const [network, setNetwork] = useState("devnet");
+  const [network, setNetwork] = useState(process.env.REACT_APP_SOLANA_NETWORK);
   return (
     // <WalletConnectionProvider network={network}>
     <WalletModalProvider>

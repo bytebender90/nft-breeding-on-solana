@@ -40,10 +40,11 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
   const [parent, setParent] = useState("");
 
   const wallet = useWallet();
+  console.log("111111111111111111", nftLists?.length)
 
-  const { REACT_APP_WORLD_TIME_API_URL, REACT_APP_ELAPSED_TIME } = process.env;
+  const { REACT_APP_WORLD_TIME_API_URL, REACT_APP_ELAPSED_TIME, REACT_APP_SOLANA_NETWORK, REACT_APP_TOKEN_ACCOUNT } = process.env;
 
-  const network = "http://127.0.0.1:8899";
+  const network = clusterApiUrl(REACT_APP_SOLANA_NETWORK);
   const connection = new Connection(network, opts.preflightCommitment);
   async function getProvider() {
     const provider = new Provider(connection, wallet, opts.preflightCommitment);
@@ -60,9 +61,6 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         program.programId
       );
       const account = await program.account.user.fetch(user);
-
-      // const requestedAt = localStorage.getItem("requestedAt");
-      // const isCreated = localStorage.getItem("isCreated");
       const requestedAt = account.timestamp; // timestamp
       const isCreated = account.isConfirmed; // status of breeding request
       const furtherCount = account.furtherCount; // number of NFTs after breeding
@@ -115,11 +113,12 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
       );
       const requestedAt = currentTimeData.data.datetime;
 
-      const mintPda = new PublicKey("FeoR1rt78YUadMp39WGpcsjdEjqhVW2ynSeE6KrLbeQm");
-      const from = await createAssociatedTokenAccount(mintPda, program.provider.wallet);
-      const to = new PublicKey("FeoR1rt78YUadMp39WGpcsjdEjqhVW2ynSeE6KrLbeQm");
-      // localStorage.setItem("requestedAt", requestedAt)
-      // localStorage.setItem("isCreated", 1);
+      const mint = new PublicKey(REACT_APP_TOKEN_ACCOUNT);
+      const from = await createAssociatedTokenAccount(
+        connection,
+        mint,
+        program.provider.wallet
+      );
 
       await program.rpc.createUser(
         provider.wallet.publicKey.toString(),
@@ -129,9 +128,10 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
           accounts: {
             user,
             authority,
-            // to,
-            // from,
-            // tokenProgram: TOKEN_PROGRAM_ID,
+            author: program.provider.wallet.publicKey,
+            mint,
+            from,
+            tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
           },
         }
@@ -162,12 +162,20 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         `${REACT_APP_WORLD_TIME_API_URL}`
       );
       const requestedAt = currentTimeData.data.datetime;
-      // localStorage.setItem("requestedAt", requestedAt)
-      // localStorage.setItem("isCreated", 1);
+      const mint = new PublicKey(REACT_APP_TOKEN_ACCOUNT);
+      const from = await createAssociatedTokenAccount(
+        connection,
+        mint,
+        program.provider.wallet
+      );
 
-      await program.rpc.createUser(requestedAt, nftLists?.length, {
+      await program.rpc.updateUser(requestedAt, nftLists?.length, {
         accounts: {
           user,
+          author: program.provider.wallet.publicKey,
+          mint,
+          from,
+          tokenProgram: TOKEN_PROGRAM_ID,
         },
       });
       const account = await program.account.user.fetch(user);
@@ -193,7 +201,7 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
     return balance;
   }
 
-  async function createAssociatedTokenAccount(mint, wallet) {
+  async function createAssociatedTokenAccount(connection, mint, wallet) {
     const associatedTokenAddress = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
@@ -204,39 +212,40 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
     return associatedTokenAddress;
   }
 
-  async function handleGetToken() {
+  async function handleMintToken() {
+    const connection = new Connection(network, "processed");
+    const mint = new PublicKey(REACT_APP_TOKEN_ACCOUNT);
     const provider = await getProvider();
     const program = new Program(idl, programID, provider);
-    const mintPda = new PublicKey("FeoR1rt78YUadMp39WGpcsjdEjqhVW2ynSeE6KrLbeQm");
-    let amount = 300;
+    const from = await createAssociatedTokenAccount(
+      connection,
+      mint,
+      program.provider.wallet
+    );
+
     try {
-      let amountToAirdrop = new BN(amount * 100000000);
-      let mintPdaBump = 253;
-
-      let associatedTokenAccount = await createAssociatedTokenAccount(mintPda, provider.wallet);
-
-      let signature = await program.rpc.airdrop(mintPdaBump, amountToAirdrop, {
+      const tx = await program.rpc.mintTokens(new anchor.BN(10000000000), {
         accounts: {
-          payer: provider.wallet.publicKey,
-          mint: mintPda,
-          destination: associatedTokenAccount,
-          rent: web3.SYSVAR_RENT_PUBKEY,
+          authority: provider.wallet.publicKey,
+          mint,
+          from,
           tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         },
-        signers: [],
       });
-      await connection.confirmTransaction(signature, "processed");
-      console.log("success Airdrop successful!" + signature);
-    } catch (err) {
-      console.log("Error Airdrop failed!");
-      console.log(err);
-      throw err;
+
+      console.log("tx: ", tx);
+    } catch (error) {
+      console.log("transaction error: ", error)
     }
   }
 
+  async function getPubkey(array) {
+    return Keypair.fromSecretKey(new Uint8Array(array));
+  }
+
   const handleBreedingStart = async () => {
+    // if (isUserExist) await updateBreedingUser();
+    // else await createBreedingUser();
     if (firstNft && secNft) {
       if (isUserExist) await updateBreedingUser();
       else await createBreedingUser();
@@ -262,6 +271,7 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
   };
 
   useEffect(async () => {
+    window.Buffer = window.Buffer || require("buffer").Buffer;
     await initailize();
   }, []);
 
@@ -276,17 +286,6 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
       )}
 
       <Container className="text-center">
-        <Row className="mt-3 justify-content-center">
-          <Col md="4">
-            <Button
-              // onClick={handleGetToken}
-              className="w-100"
-            // disabled={isBreeding}
-            >
-              Get Tokens
-            </Button>
-          </Col>
-        </Row>
         <Row className="mt-3">
           <Col md="6">
             <div className="">

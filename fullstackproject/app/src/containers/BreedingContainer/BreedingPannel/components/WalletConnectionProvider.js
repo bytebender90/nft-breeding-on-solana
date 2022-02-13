@@ -12,7 +12,7 @@ import {
 import { clusterApiUrl } from "@solana/web3.js";
 import { useMemo } from "react";
 
-export const WalletConnectionProvider = ({ children, network = "devnet" }) => {
+export const WalletConnectionProvider = ({ children, network = process.env.REACT_APP_SOLANA_NETWORK }) => {
   console.log(network);
 
   // You can also provide a custom RPC endpoint

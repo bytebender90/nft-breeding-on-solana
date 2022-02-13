@@ -31,7 +31,7 @@ const network = process.env.REACT_APP_SOLANA_NETWORK;
 const rpcHost = process.env.REACT_APP_SOLANA_RPC_HOST || null;
 const connection = new anchor.web3.Connection(rpcHost
   ? rpcHost
-  : anchor.web3.clusterApiUrl('devnet'));
+  : anchor.web3.clusterApiUrl(process.env.REACT_APP_SOLANA_NETWORK));
 
 const startDateSeed = parseInt(process.env.REACT_APP_CANDY_START_DATE, 10);
 const txTimeoutInMilliseconds = 30000;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Spinner } from "react-bootstrap";
 import styled from "styled-components";
 
 const ItemContainer = styled.div`
@@ -12,24 +13,38 @@ const Image = styled.img`
 
 export function NFTItem({ item, setParentNft }) {
   const [NFTData, setNFTData] = useState(null);
+  const [isLoading, setLoding] = useState(true);
 
   useEffect(() => {
     async function getData() {
-      let data = await (await fetch(item?.data?.uri)).json();
-      // console.log(data);
-      setNFTData(data);
+      let data = {};
+      try {
+        data = await (await fetch(item?.data?.uri)).json();
+        setLoding(false);
+      } catch (err) {
+        console.log("nft fetch error: ", err);
+      }
+      setTimeout(() => {
+        setNFTData(data);
+      }, 100)
     }
     getData();
   }, [item]);
   return (
     <ItemContainer className="text-center">
       <h4>{item.data.name}</h4>
-      <Image
-        src={NFTData?.image}
-        alt="NFT"
-        className="img-fluid img-responsive cusor-pointer"
-        onClick={() => setParentNft({...item, NFTData})}
-      />
+      {isLoading ? (
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      ) : (
+        <Image
+          src={NFTData?.image}
+          alt="NFT"
+          className="img-fluid img-responsive cusor-pointer"
+          onClick={() => setParentNft({ ...item, NFTData })}
+        />
+      )}
     </ItemContainer>
   );
 }

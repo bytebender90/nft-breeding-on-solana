@@ -16,6 +16,26 @@
           "isSigner": true
         },
         {
+          "name": "author",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -43,6 +63,26 @@
           "name": "user",
           "isMut": true,
           "isSigner": false
+        },
+        {
+          "name": "author",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -53,6 +93,68 @@
         {
           "name": "currentCount",
           "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "transferTokens",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "mintTokens",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
         }
       ]
     },
@@ -147,6 +249,6 @@
     }
   ],
   "metadata": {
-    "address": "Ek4nBHzVU6Lkz9tNCWSpTZWEwwm2MzG9a1U9VFnFmH5v"
+    "address": "GJjnTihraGQtMPZAiRoWRyEgAf8pxPtg6cQqQPvE2BDX"
   }
 }
