@@ -1,0 +1,152 @@
+{
+  "version": "0.1.0",
+  "name": "mysolanaapp",
+  "instructions": [
+    {
+      "name": "createUser",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "initialCount",
+          "type": "u16"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "updateUser",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "currentCount",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "createBreedingRoom",
+      "accounts": [
+        {
+          "name": "breedingRoom",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "User",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "string"
+          },
+          {
+            "name": "isConfirmed",
+            "type": "bool"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "initialCount",
+            "type": "u16"
+          },
+          {
+            "name": "currentCount",
+            "type": "u16"
+          },
+          {
+            "name": "furtherCount",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BreedingRoom",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "head",
+            "type": "u64"
+          },
+          {
+            "name": "tail",
+            "type": "u64"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                280
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unknown"
+    }
+  ],
+  "metadata": {
+    "address": "Ek4nBHzVU6Lkz9tNCWSpTZWEwwm2MzG9a1U9VFnFmH5v"
+  }
+}

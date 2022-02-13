@@ -1,0 +1,161 @@
+@import url('./assets/font/font.css');
+html,
+body {
+  margin: 0;
+}
+
+*::-webkit-scrollbar-track {
+  background: none;
+}
+*::-webkit-scrollbar-thumb {
+  background: none;
+}
+* {
+  /* color: white; */
+  font-family: var(--bd-font-body-family);
+  font-family: monospace;
+}
+
+/* @media (min-width: 901px) {
+  .children {
+    width: calc(100% - 250px);
+  }
+}
+@media (max-width: 901px) {
+  .children {
+    width: calc(100% - 100px);
+  }
+}
+@media (max-width: 425px) {
+  .children {
+    width: calc(100% + 5px);
+  }
+}
+@media (max-width: 598px) {
+  .children {
+    width: calc(100% - 10px);
+  }
+} */
+.MuiDrawer-paper {
+  background-color: rgb(219 169 5);
+  backdrop-filter: blur(40px);
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* loading */
+@import url(https://fonts.googleapis.com/css?family=Quattrocento+Sans);
+.loading {
+  position: fixed;
+  top: 150px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+}
+
+.loading-text {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  text-align: center;
+  width: 100%;
+  height: 100px;
+  line-height: 100px;
+}
+.loading-text span {
+  display: inline-block;
+  margin: 0 5px;
+  color: #fff;
+  font-family: 'Quattrocento Sans', sans-serif;
+}
+.loading-text span:nth-child(1) {
+  filter: blur(0px);
+  -webkit-animation: blur-text 1.5s 0s infinite linear alternate;
+  animation: blur-text 1.5s 0s infinite linear alternate;
+}
+.loading-text span:nth-child(2) {
+  filter: blur(0px);
+  -webkit-animation: blur-text 1.5s 0.2s infinite linear alternate;
+  animation: blur-text 1.5s 0.2s infinite linear alternate;
+}
+.loading-text span:nth-child(3) {
+  filter: blur(0px);
+  -webkit-animation: blur-text 1.5s 0.4s infinite linear alternate;
+  animation: blur-text 1.5s 0.4s infinite linear alternate;
+}
+.loading-text span:nth-child(4) {
+  filter: blur(0px);
+  -webkit-animation: blur-text 1.5s 0.6s infinite linear alternate;
+  animation: blur-text 1.5s 0.6s infinite linear alternate;
+}
+.loading-text span:nth-child(5) {
+  filter: blur(0px);
+  -webkit-animation: blur-text 1.5s 0.8s infinite linear alternate;
+  animation: blur-text 1.5s 0.8s infinite linear alternate;
+}
+.loading-text span:nth-child(6) {
+  filter: blur(0px);
+  -webkit-animation: blur-text 1.5s 1s infinite linear alternate;
+  animation: blur-text 1.5s 1s infinite linear alternate;
+}
+.loading-text span:nth-child(7) {
+  filter: blur(0px);
+  -webkit-animation: blur-text 1.5s 1.2s infinite linear alternate;
+  animation: blur-text 1.5s 1.2s infinite linear alternate;
+}
+
+@-webkit-keyframes blur-text {
+  0% {
+    filter: blur(0px);
+  }
+  75% {
+    filter: blur(1px);
+  }
+  100% {
+    filter: blur(2px);
+  }
+}
+
+@keyframes blur-text {
+  0% {
+    filter: blur(0px);
+  }
+  75% {
+    filter: blur(1px);
+  }
+  100% {
+    filter: blur(2px);
+  }
+}
+
+/* * {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+} */
+
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.q {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 199;
+  font-size: 122px;
+  color: white;
+}
