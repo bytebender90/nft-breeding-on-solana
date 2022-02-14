@@ -12,17 +12,16 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
+import axios from "axios";
 
 import NftListsModal from "./NFTListModal";
 
 import Timer from "./Timer";
 import idl from "../idl.json";
-import key from "../key.json";
-import axios from "axios";
+import adultNfts from "../gib-meta.json";
 
 const { SystemProgram, Keypair } = web3;
-/* create an account  */
-const baseAccount = Keypair.fromSecretKey(new Uint8Array(key));
+
 const opts = {
   preflightCommitment: "processed",
 };
@@ -38,6 +37,7 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
   const [secNft, setSecNft] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [parent, setParent] = useState("");
+  const [adultList, setAdultList] = useState([]);
 
   const wallet = useWallet();
 
@@ -278,9 +278,13 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
   };
 
   const setParentNft = (selectedItem) => {
-    if (parent == "firstNft") setFirstNft(selectedItem);
-    else setSecNft(selectedItem);
-    setShowModal(false);
+    if (adultList.includes(selectedItem.NFTData.edition)) {
+      if (parent == "firstNft") setFirstNft(selectedItem);
+      else setSecNft(selectedItem);
+      setShowModal(false);
+    } else {
+      alert("Please select adult NFTs")
+    }
   };
 
   const onCompleteBrReq = () => {
@@ -288,9 +292,18 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
     setIsExpired(true);
   };
 
+  const fetchAdultEditionList = async () => {
+    let adultList = [];
+    adultNfts.map((item, index) => {
+      adultList.push(item.metadata.edition);
+    })
+    setAdultList(adultList);
+  }
+
   useEffect(async () => {
     window.Buffer = window.Buffer || require("buffer").Buffer;
     await initailize();
+    await fetchAdultEditionList();
   }, []);
 
   return (
