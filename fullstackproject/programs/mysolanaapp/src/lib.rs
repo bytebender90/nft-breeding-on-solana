@@ -18,6 +18,7 @@ mod mysolanaapp {
         timestamp: String,
         first_img: String,
         second_img: String,
+        amount: u64,
     ) -> Result<()> {
         ctx.accounts.user.name = name;
         ctx.accounts.user.timestamp = timestamp;
@@ -40,7 +41,7 @@ mod mysolanaapp {
             to_token_info.key,
             from_info.key,
             &[from_info.key],
-            30000000000,
+            amount,
         )?;
         invoke(
             &ix,
@@ -60,6 +61,7 @@ mod mysolanaapp {
         current_count: u16,
         first_img: String,
         second_img: String,
+        amount: u64,
     ) -> Result<()> {
         ctx.accounts.user.timestamp = timestamp;
         ctx.accounts.user.is_confirmed = true;
@@ -78,7 +80,7 @@ mod mysolanaapp {
             to_token_info.key,
             from_info.key,
             &[from_info.key],
-            30000000000,
+            amount,
         )?;
         invoke(
             &ix,

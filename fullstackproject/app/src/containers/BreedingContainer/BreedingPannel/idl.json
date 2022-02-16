@@ -61,6 +61,10 @@
         {
           "name": "secondImg",
           "type": "string"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
         }
       ]
     },
@@ -109,6 +113,10 @@
         {
           "name": "secondImg",
           "type": "string"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
         }
       ]
     },
@@ -126,7 +134,7 @@
           "isSigner": false
         },
         {
-          "name": "mint",
+          "name": "to",
           "isMut": true,
           "isSigner": false
         },

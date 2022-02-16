@@ -47,7 +47,8 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
     REACT_APP_ELAPSED_TIME,
     REACT_APP_SOLANA_NETWORK,
     REACT_APP_TOKEN_ACCOUNT,
-    REACT_APP_DIPOSIT_WALLET_ADDRESS
+    REACT_APP_DIPOSIT_WALLET_ADDRESS,
+    REACT_APP_DIPOSIT_TOKEN_AMOUNT,
   } = process.env;
 
   const network = clusterApiUrl(REACT_APP_SOLANA_NETWORK);
@@ -79,6 +80,8 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
       const secondImg = account.secondImg;
       const firstNft = { NFTData: { image: firstImg } };
       const secNft = { NFTData: { image: secondImg } };
+
+      console.log("===================", nftLists.length, furtherCount)
 
       const timeRemaining = requestedAt
         ? await getTimeRemaining(requestedAt)
@@ -148,12 +151,15 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         toPublickey
       );
 
+      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1000000000;
+
       await program.rpc.createUser(
         provider.wallet.publicKey.toString(),
         nftLists?.length,
         requestedAt,
         firstNft?.NFTData?.image,
         secNft?.NFTData?.image,
+        new anchor.BN(amount),
         {
           accounts: {
             user,
@@ -203,12 +209,14 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         mint,
         toPublickey
       );
+      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1000000000;
 
       await program.rpc.updateUser(
         requestedAt,
         nftLists?.length,
         firstNft?.NFTData?.image,
         secNft?.NFTData?.image,
+        new anchor.BN(amount),
         {
           accounts: {
             user,
