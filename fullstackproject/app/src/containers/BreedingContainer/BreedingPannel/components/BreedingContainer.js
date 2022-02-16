@@ -91,6 +91,9 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         setFirstNft(null);
         setSecNft(null)
       }
+      console.log("timeRemaining", timeRemaining)
+      console.log("nftLists?.length", nftLists?.length)
+      console.log("furtherCount", furtherCount)
 
       setUserExist(account.isConfirmed);
       if (timeRemaining > 0) {

@@ -3,7 +3,11 @@ import { Col, Modal, Row, Spinner } from "react-bootstrap";
 import { NFTItem } from "./NFTItem";
 
 const NftListsModal = (props) => {
-  const { nftLists, setParentNft, showModal, setShowModal } = props;
+  const { setParentNft, showModal, setShowModal } = props;
+  let nftLists = props.nftLists || [];
+  if(nftLists.length) {
+    nftLists = nftLists.filter(x => x.data.symbol == "ED" && x.data.name.includes("Ehecatl Dragon"))
+  }
 
   return (
     <Fragment>
@@ -21,7 +25,7 @@ const NftListsModal = (props) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {nftLists ? (
+          {nftLists.length > 0 ? (
             <Row>
               {nftLists.map((item, index) => {
                 if (item.data.uri === "") return null;

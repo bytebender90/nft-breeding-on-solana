@@ -148,13 +148,15 @@ const Home = (props) => {
           }
 
           if (status && !status.err) {
-            localStorage.setItem("isCreated", 0);
             setIsExpired(false)
             setAlertState({
               open: true,
               message: 'Succeeded!',
               severity: 'success',
             });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000)
           } else {
             setAlertState({
               open: true,
