@@ -22,6 +22,8 @@ import { GatewayProvider } from '@civic/solana-gateway-react';
 import BreedingPannel from './BreedingPannel';
 import { fetchNFTsOwnedByWallet } from "./BreedingPannel/lib/fetchNFTsByWallet";
 import idl from "./BreedingPannel/idl.json";
+import { Spinner } from 'react-bootstrap';
+import { textAlign } from '@mui/system';
 
 const ConnectButton = styled(WalletDialogButton)`
   width: 100%;
@@ -45,7 +47,7 @@ const Home = (props) => {
     severity: undefined,
   });
   const [isExpired, setIsExpired] = useState(false);
-
+  const [isLoading, setLoading] = useState(false);
   const rpcUrl = props.rpcHost;
   const wallet = useWallet();
 
@@ -154,9 +156,10 @@ const Home = (props) => {
               message: 'Succeeded!',
               severity: 'success',
             });
+            setLoading(true);
             setTimeout(() => {
               window.location.reload();
-            }, 3000)
+            }, 15000)
           } else {
             setAlertState({
               open: true,
@@ -166,12 +169,12 @@ const Home = (props) => {
           }
         }
       } else {
+        setIsExpired(false)
         setAlertState({
           open: true,
           message: 'Failed! You don\'t get a new NFT without paying $EDS token!',
           severity: 'error',
         });
-        setIsExpired(false)
       }
     } catch (error) {
       let message = error.msg || 'Failed! Please try again!';
@@ -214,14 +217,23 @@ const Home = (props) => {
   return (
     <div style={{ marginTop: '-70px' }}>
       {isExpired && (
-        <Container maxWidth="xs" style={{ position: 'relative' }}>
-          <MintContainer>
-            <MintButton
-              candyMachine={candyMachine}
-              isMinting={isUserMinting}
-              onMint={onMint}
-            />
-          </MintContainer>
+        <Container maxWidth="xs" style={{ position: 'relative', textAlign: 'center' }}>
+          {isLoading == true ? (
+            <div>
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </div>
+          ) : (
+            <MintContainer>
+              <MintButton
+                candyMachine={candyMachine}
+                isMinting={isUserMinting}
+                onMint={onMint}
+              />
+            </MintContainer>
+          )
+          }
         </Container>
       )}
       <BreedingPannel setIsExpired={setIsExpired} />

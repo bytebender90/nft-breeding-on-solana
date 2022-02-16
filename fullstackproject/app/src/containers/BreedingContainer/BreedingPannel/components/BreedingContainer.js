@@ -206,7 +206,7 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         mint,
         toPublickey
       );
-      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1000000000;
+      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1;
 
       await program.rpc.updateUser(
         requestedAt,
