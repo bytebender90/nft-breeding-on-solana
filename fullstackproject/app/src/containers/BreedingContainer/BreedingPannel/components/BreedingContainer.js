@@ -65,43 +65,45 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
 
   async function initailize() {
     try {
-      const provider = await getProvider();
-      const program = new Program(idl, programID, provider);
-      const authority = program.provider.wallet.publicKey;
-      const [user, bump] = await PublicKey.findProgramAddress(
-        [authority.toBuffer()],
-        program.programId
-      );
-      const account = await program.account.user.fetch(user);
-      const requestedAt = account.timestamp; // timestamp
-      const isCreated = account.isConfirmed; // status of breeding request
-      const furtherCount = account.furtherCount; // number of NFTs after breeding
-      const firstImg = account.firstImg;
-      const secondImg = account.secondImg;
-      const firstNft = { NFTData: { image: firstImg } };
-      const secNft = { NFTData: { image: secondImg } };
-      const timeRemaining = requestedAt
-        ? await getTimeRemaining(requestedAt)
-        : 0;
+      setTimeout(async () => {
+        const provider = await getProvider();
+        const program = new Program(idl, programID, provider);
+        const authority = program.provider.wallet.publicKey;
+        const [user, bump] = await PublicKey.findProgramAddress(
+          [authority.toBuffer()],
+          program.programId
+        );
+        const account = await program.account.user.fetch(user);
+        const requestedAt = account.timestamp; // timestamp
+        const isCreated = account.isConfirmed; // status of breeding request
+        const furtherCount = account.furtherCount; // number of NFTs after breeding
+        const firstImg = account.firstImg;
+        const secondImg = account.secondImg;
+        const firstNft = { NFTData: { image: firstImg } };
+        const secNft = { NFTData: { image: secondImg } };
+        const timeRemaining = requestedAt
+          ? await getTimeRemaining(requestedAt)
+          : 0;
 
-      if (timeRemaining > 0) {
-        setFirstNft(firstNft);
-        setSecNft(secNft)
-      } else {
-        setFirstNft(null);
-        setSecNft(null)
-      }
+        if (timeRemaining > 0) {
+          setFirstNft(firstNft);
+          setSecNft(secNft)
+        } else {
+          setFirstNft(null);
+          setSecNft(null)
+        }
 
-      setUserExist(account.isConfirmed);
-      if (timeRemaining > 0) {
-        setTimeRemaining(timeRemaining);
-        setIsCreated(true);
-        setIsBreeding(true);
-      } else {
-        if (isCreated && nftLists?.length < furtherCount) setIsExpired(true);
-        setIsCreated(false);
-        setTimeRemaining(0);
-      }
+        setUserExist(account.isConfirmed);
+        if (timeRemaining > 0) {
+          setTimeRemaining(timeRemaining);
+          setIsCreated(true);
+          setIsBreeding(true);
+        } else {
+          if (isCreated && nftLists?.length < furtherCount) setIsExpired(true);
+          setIsCreated(false);
+          setTimeRemaining(0);
+        }
+      }, 5000)
     } catch (err) {
       console.log("new account");
     }
