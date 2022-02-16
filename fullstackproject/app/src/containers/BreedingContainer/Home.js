@@ -156,7 +156,7 @@ const Home = (props) => {
             });
             setTimeout(() => {
               window.location.reload();
-            }, 2000)
+            }, 3000)
           } else {
             setAlertState({
               open: true,
@@ -168,9 +168,10 @@ const Home = (props) => {
       } else {
         setAlertState({
           open: true,
-          message: 'Failed! Please try again!',
+          message: 'Failed! You don\'t get a new NFT without paying $EDS token!',
           severity: 'error',
         });
+        setIsExpired(false)
       }
     } catch (error) {
       let message = error.msg || 'Failed! Please try again!';
