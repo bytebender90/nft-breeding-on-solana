@@ -26,7 +26,7 @@
           "isSigner": false
         },
         {
-          "name": "mint",
+          "name": "to",
           "isMut": true,
           "isSigner": false
         },
@@ -83,7 +83,7 @@
           "isSigner": false
         },
         {
-          "name": "mint",
+          "name": "to",
           "isMut": true,
           "isSigner": false
         },

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Container, Snackbar } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import Alert from '@material-ui/lab/Alert';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, clusterApiUrl, Connection } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletDialogButton } from '@solana/wallet-adapter-material-ui';
 import {
@@ -20,6 +20,8 @@ import { Header } from './Header';
 import { MintButton } from './MintButton';
 import { GatewayProvider } from '@civic/solana-gateway-react';
 import BreedingPannel from './BreedingPannel';
+import { fetchNFTsOwnedByWallet } from "./BreedingPannel/lib/fetchNFTsByWallet";
+import idl from "./BreedingPannel/idl.json";
 
 const ConnectButton = styled(WalletDialogButton)`
   width: 100%;
@@ -84,40 +86,89 @@ const Home = (props) => {
     }
   }, [anchorWallet, props.candyMachineId, props.connection]);
 
+  const checkValidation = async () => {
+    const connection = new Connection(clusterApiUrl(process.env.REACT_APP_SOLANA_NETWORK));
+    const { publicKey } = wallet;
+
+    let amountOfNft = -1;
+    if (!publicKey) {
+      alert("Please Connect your wallet to the site");
+    };
+    try {
+      const userNFTs = await fetchNFTsOwnedByWallet(
+        new PublicKey(publicKey),
+        connection
+      );
+      if (typeof userNFTs === "undefined") {
+        amountOfNft = 0;
+      } else
+        amountOfNft = userNFTs.length;
+    } catch (error) {
+      console.log("error: ", error);
+    }
+
+    const programID = new PublicKey(idl.metadata.address);
+    const provider = new anchor.Provider(connection, wallet, "processed");
+    const program = new anchor.Program(idl, programID, provider);
+    const authority = program.provider.wallet.publicKey;
+    const [user, bump] = await PublicKey.findProgramAddress(
+      [authority.toBuffer()],
+      program.programId
+    );
+
+    const account = await program.account.user.fetch(user);
+    const isCreated = account.isConfirmed; // status of breeding request
+    const furtherCount = account.furtherCount; // number of NFTs after breeding
+    if (isCreated && amountOfNft != -1 && amountOfNft < furtherCount)
+      return true;
+    else
+      return false;
+  }
+
   const onMint = async () => {
     try {
-      setIsUserMinting(true);
-      document.getElementById('#identity')?.click();
-      if (wallet.connected && candyMachine?.program && wallet.publicKey) {
-        const mintTxId = (
-          await mintOneToken(candyMachine, wallet.publicKey)
-        )[0];
+      const vaild = await checkValidation();
+      console.log("=============", vaild)
+      if (vaild) {
+        setIsUserMinting(true);
+        document.getElementById('#identity')?.click();
+        if (wallet.connected && candyMachine?.program && wallet.publicKey) {
+          const mintTxId = (
+            await mintOneToken(candyMachine, wallet.publicKey)
+          )[0];
 
-        let status = { err: true };
-        if (mintTxId) {
-          status = await awaitTransactionSignatureConfirmation(
-            mintTxId,
-            props.txTimeout,
-            props.connection,
-            true,
-          );
-        }
+          let status = { err: true };
+          if (mintTxId) {
+            status = await awaitTransactionSignatureConfirmation(
+              mintTxId,
+              props.txTimeout,
+              props.connection,
+              true,
+            );
+          }
 
-        if (status && !status.err) {
-          localStorage.setItem("isCreated", 0);
-          setIsExpired(false)
-          setAlertState({
-            open: true,
-            message: 'Succeeded!',
-            severity: 'success',
-          });
-        } else {
-          setAlertState({
-            open: true,
-            message: 'Failed! Please try again!',
-            severity: 'error',
-          });
+          if (status && !status.err) {
+            localStorage.setItem("isCreated", 0);
+            setIsExpired(false)
+            setAlertState({
+              open: true,
+              message: 'Succeeded!',
+              severity: 'success',
+            });
+          } else {
+            setAlertState({
+              open: true,
+              message: 'Failed! Please try again!',
+              severity: 'error',
+            });
+          }
         }
+      } else {
+        setAlertState({
+          open: true,
+          message: 'Failed! Please try again!',
+          severity: 'error',
+        });
       }
     } catch (error) {
       let message = error.msg || 'Failed! Please try again!';
@@ -172,7 +223,7 @@ const Home = (props) => {
       )}
       <BreedingPannel setIsExpired={setIsExpired} />
       <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center'}}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={alertState.open}
         autoHideDuration={6000}
         onClose={() => setAlertState({ ...alertState, open: false })}

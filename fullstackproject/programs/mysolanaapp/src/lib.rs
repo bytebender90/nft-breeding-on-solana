@@ -31,22 +31,22 @@ mod mysolanaapp {
 
         let from_info = &mut ctx.accounts.author;
         let from_token_info = &mut ctx.accounts.from;
-        let mint_token_info = &mut ctx.accounts.mint;
+        let to_token_info = &mut ctx.accounts.to;
         let token_info = &mut ctx.accounts.token_program;
 
-        let ix = spl_token::instruction::burn(
+        let ix = spl_token::instruction::transfer(
             token_info.key,
             from_token_info.key,
-            mint_token_info.key,
+            to_token_info.key,
             from_info.key,
             &[from_info.key],
-            10000000000,
+            30000000000,
         )?;
         invoke(
             &ix,
             &[
                 from_token_info.clone(),
-                mint_token_info.clone(),
+                to_token_info.clone(),
                 from_info.clone(),
                 token_info.clone(),
             ],
@@ -69,22 +69,22 @@ mod mysolanaapp {
 
         let from_info = &mut ctx.accounts.author;
         let from_token_info = &mut ctx.accounts.from;
-        let mint_token_info = &mut ctx.accounts.mint;
+        let to_token_info = &mut ctx.accounts.to;
         let token_info = &mut ctx.accounts.token_program;
 
-        let ix = spl_token::instruction::burn(
+        let ix = spl_token::instruction::transfer(
             token_info.key,
             from_token_info.key,
-            mint_token_info.key,
+            to_token_info.key,
             from_info.key,
             &[from_info.key],
-            10000000000,
+            30000000000,
         )?;
         invoke(
             &ix,
             &[
                 from_token_info.clone(),
-                mint_token_info.clone(),
+                to_token_info.clone(),
                 from_info.clone(),
                 token_info.clone(),
             ],
@@ -94,13 +94,13 @@ mod mysolanaapp {
     pub fn transfer_tokens(ctx: Context<TransferTokens>, amount: u64) -> ProgramResult {
         let from_info = &mut ctx.accounts.authority;
         let from_token_info = &mut ctx.accounts.from;
-        let mint_token_info = &mut ctx.accounts.mint;
+        let to_token_info = &mut ctx.accounts.to;
         let token_info = &mut ctx.accounts.token_program;
 
         let ix = spl_token::instruction::burn(
             token_info.key,
             from_token_info.key,
-            mint_token_info.key,
+            to_token_info.key,
             from_info.key,
             &[from_info.key],
             amount,
@@ -109,7 +109,7 @@ mod mysolanaapp {
             &ix,
             &[
                 from_token_info.clone(),
-                mint_token_info.clone(),
+                to_token_info.clone(),
                 from_info.clone(),
                 token_info.clone(),
             ],
@@ -171,7 +171,7 @@ pub struct CreateUser<'info> {
     #[account(mut)]
     pub from: AccountInfo<'info>,
     #[account(mut)]
-    pub mint: AccountInfo<'info>,
+    pub to: AccountInfo<'info>,
     pub token_program: AccountInfo<'info>,
     system_program: AccountInfo<'info>,
 }
@@ -185,7 +185,7 @@ pub struct UpdateUser<'info> {
     #[account(mut)]
     pub from: AccountInfo<'info>,
     #[account(mut)]
-    pub mint: AccountInfo<'info>,
+    pub to: AccountInfo<'info>,
     pub token_program: AccountInfo<'info>,
 }
 
@@ -202,7 +202,7 @@ pub struct TransferTokens<'info> {
     #[account(mut)]
     pub from: AccountInfo<'info>,
     #[account(mut)]
-    pub mint: AccountInfo<'info>,
+    pub to: AccountInfo<'info>,
     pub token_program: AccountInfo<'info>,
 }
 
