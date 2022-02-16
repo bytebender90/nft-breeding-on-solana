@@ -80,9 +80,6 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
       const secondImg = account.secondImg;
       const firstNft = { NFTData: { image: firstImg } };
       const secNft = { NFTData: { image: secondImg } };
-
-      console.log("===================", nftLists.length, furtherCount)
-
       const timeRemaining = requestedAt
         ? await getTimeRemaining(requestedAt)
         : 0;
@@ -106,7 +103,7 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         setTimeRemaining(0);
       }
     } catch (err) {
-      console.log("Transaction error: ", err);
+      console.log("new account");
     }
   }
 
