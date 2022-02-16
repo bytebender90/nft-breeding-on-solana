@@ -156,7 +156,7 @@ const Home = (props) => {
             });
             setTimeout(() => {
               window.location.reload();
-            }, 1000)
+            }, 2000)
           } else {
             setAlertState({
               open: true,
