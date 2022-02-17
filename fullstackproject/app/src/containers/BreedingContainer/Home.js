@@ -129,8 +129,8 @@ const Home = (props) => {
 
   const onMint = async () => {
     try {
-      const vaild = await checkValidation();
-      if (vaild) {
+      const valid = true;
+      if (valid) {
         setIsUserMinting(true);
         document.getElementById('#identity')?.click();
         if (wallet.connected && candyMachine?.program && wallet.publicKey) {
@@ -212,6 +212,8 @@ const Home = (props) => {
     props.connection,
     refreshCandyMachineState,
   ]);
+
+    console.log("===============================", candyMachine?.state.itemsRemaining)
 
   return (
     <div style={{ marginTop: '-70px' }}>

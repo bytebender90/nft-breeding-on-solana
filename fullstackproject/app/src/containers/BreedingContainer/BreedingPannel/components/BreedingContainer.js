@@ -112,9 +112,14 @@ const BreedingContainer = ({ setIsExpired }) => {
         const secondImg = account.secondImg;
         const firstNft = { NFTData: { image: firstImg } };
         const secNft = { NFTData: { image: secondImg } };
-        const timeRemaining = requestedAt
-          ? await getTimeRemaining(requestedAt)
-          : 0;
+        let timeRemaining = 0;
+        try {
+          timeRemaining = requestedAt
+            ? await getTimeRemaining(requestedAt)
+            : 0;
+        } catch (err) {
+          window.location.reload();
+        }
 
         if (timeRemaining > 0) {
           setFirstNft(firstNft);
@@ -123,7 +128,7 @@ const BreedingContainer = ({ setIsExpired }) => {
           setFirstNft(null);
           setSecNft(null)
         }
-        
+
         setUserExist(account.isConfirmed);
         if (timeRemaining > 0) {
           setTimeRemaining(timeRemaining);
@@ -136,7 +141,7 @@ const BreedingContainer = ({ setIsExpired }) => {
         }
 
         setLoading(false);
-      }, 1000)
+      }, 5000)
     } catch (err) {
       console.log("new account");
     }
@@ -338,8 +343,12 @@ const BreedingContainer = ({ setIsExpired }) => {
 
   const handleBreedingStart = async () => {
     if (firstNft && secNft) {
-      if (isUserExist) await updateBreedingUser();
-      else await createBreedingUser();
+      if (firstNft.data.uri != secNft.data.uri) {
+        if (isUserExist) await updateBreedingUser();
+        else await createBreedingUser();
+      } else {
+        alert("Can't use one adult for breeding")
+      }
     } else {
       alert("Select two NFTs!");
     }

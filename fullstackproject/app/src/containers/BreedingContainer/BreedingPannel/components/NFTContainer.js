@@ -52,9 +52,9 @@ export function NFTContainer({ network, setIsExpired }) {
     }
   }
 
-  useEffect(async () => {
-    await getNFTList();
-  }, [wallet]);
+  // useEffect(async () => {
+  //   await getNFTList();
+  // }, [wallet]);
 
   if (publicKey) {
     if (NFTs === 0) {
@@ -69,7 +69,7 @@ export function NFTContainer({ network, setIsExpired }) {
     }
     return (
       <Container>
-        <BreedingContainer nftLists={NFTs} setIsExpired={setIsExpired} />
+        <BreedingContainer /*nftLists={NFTs}*/ setIsExpired={setIsExpired} />
       </Container>
     );
   } else {
