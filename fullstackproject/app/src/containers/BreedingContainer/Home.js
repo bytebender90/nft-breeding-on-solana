@@ -130,7 +130,6 @@ const Home = (props) => {
   const onMint = async () => {
     try {
       const vaild = await checkValidation();
-      console.log("=============", vaild)
       if (vaild) {
         setIsUserMinting(true);
         document.getElementById('#identity')?.click();
@@ -159,7 +158,7 @@ const Home = (props) => {
             setLoading(true);
             setTimeout(() => {
               window.location.reload();
-            }, 15000)
+            }, 1500)
           } else {
             setAlertState({
               open: true,

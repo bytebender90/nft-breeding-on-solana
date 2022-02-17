@@ -38,7 +38,7 @@ export const MintButton = ({
   const getMintButtonContent = () => {
     return 'GET A NEW NFT';
   };
-
+  console.log("===============================", candyMachine?.state.itemsRemaining)
   return (
     <CTAButton
       disabled={

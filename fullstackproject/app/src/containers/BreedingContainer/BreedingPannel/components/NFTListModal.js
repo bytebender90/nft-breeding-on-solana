@@ -29,7 +29,7 @@ const NftListsModal = (props) => {
             <Row>
               {nftLists.map((item, index) => {
                 if (item.data.uri === "") return null;
-                return (
+                return item.data.symbol == "ED" && item.data.name.includes("Ehecatl Dragon") &&  (
                   <Col md="4" key={index}>
                     <NFTItem item={item} setParentNft={setParentNft} />
                   </Col>

@@ -1,7 +1,7 @@
 import "../styles/BreedingContainer.css";
 import { useEffect, useState } from "react";
 
-import { Button, Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import { BN, Program, Provider, web3 } from "@project-serum/anchor";
@@ -20,6 +20,7 @@ import Timer from "./Timer";
 import idl from "../idl.json";
 import adultNfts from "../gib-meta.json";
 import tokenOwner from "../owner-keypair.json";
+import { fetchNFTsOwnedByWallet } from "../lib/fetchNFTsByWallet";
 
 const { SystemProgram, Keypair } = web3;
 
@@ -28,7 +29,7 @@ const opts = {
 };
 const programID = new PublicKey(idl.metadata.address);
 
-const BreedingContainer = ({ nftLists, setIsExpired }) => {
+const BreedingContainer = ({ setIsExpired }) => {
   const [isBreeding, setIsBreeding] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5);
   const [isCreated, setIsCreated] = useState(false);
@@ -39,6 +40,8 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
   const [showModal, setShowModal] = useState(false);
   const [parent, setParent] = useState("");
   const [adultList, setAdultList] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+  const [nftLists, setNFTs] = useState(null);
 
   const wallet = useWallet();
 
@@ -63,8 +66,36 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
     return provider;
   }
 
+  async function getNFTList() {
+    const { publicKey } = wallet;
+    if (!publicKey) {
+      setNFTs(null);
+      return null;
+    };
+    let userNFTs;
+    try {
+      userNFTs = await fetchNFTsOwnedByWallet(
+        new PublicKey(publicKey),
+        connection
+      );
+
+      if (typeof userNFTs === "undefined") {
+        setNFTs(0);
+        return null;
+      } else {
+        setNFTs(userNFTs);
+        return userNFTs;
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      return null;
+    }
+  }
+
   async function initailize() {
     try {
+      const userNFTs = await getNFTList();
+
       setTimeout(async () => {
         const provider = await getProvider();
         const program = new Program(idl, programID, provider);
@@ -92,18 +123,20 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
           setFirstNft(null);
           setSecNft(null)
         }
-
+        
         setUserExist(account.isConfirmed);
         if (timeRemaining > 0) {
           setTimeRemaining(timeRemaining);
           setIsCreated(true);
           setIsBreeding(true);
         } else {
-          if (isCreated && nftLists?.length < furtherCount) setIsExpired(true);
+          if (isCreated && userNFTs?.length < furtherCount) setIsExpired(true);
           setIsCreated(false);
           setTimeRemaining(0);
         }
-      }, 5000)
+
+        setLoading(false);
+      }, 1000)
     } catch (err) {
       console.log("new account");
     }
@@ -208,7 +241,7 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
         mint,
         toPublickey
       );
-      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1000000000;
+      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1;
 
       await program.rpc.updateUser(
         requestedAt,
@@ -345,9 +378,16 @@ const BreedingContainer = ({ nftLists, setIsExpired }) => {
     window.Buffer = window.Buffer || require("buffer").Buffer;
     await initailize();
     await fetchAdultEditionList();
-  }, [nftLists]);
+  }, []);
 
-  return (
+  return isLoading ? (
+    <div>
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+      <span className="ml-1">Please wait...</span>
+    </div>
+  ) : (
     <div className="text-center">
       {isBreeding && isCreated && (
         <Timer
