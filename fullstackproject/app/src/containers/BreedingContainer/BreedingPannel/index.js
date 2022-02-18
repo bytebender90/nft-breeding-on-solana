@@ -8,20 +8,18 @@ import { Header } from "./components/Header";
 import 'bootstrap/dist/css/bootstrap.min.css';
 require("@solana/wallet-adapter-react-ui/styles.css");
 
-function BreedingPannel({ setIsExpired }) {
+function BreedingPannel({ candyMachine, setIsExpired }) {
   // eslint-disable-next-line no-unused-vars
   const [network, setNetwork] = useState(process.env.REACT_APP_SOLANA_NETWORK);
   return (
-    // <WalletConnectionProvider network={network}>
     <WalletModalProvider>
       <OuterContainer>
         <Header />
         <Container>
-          <NFTContainer network={network} setIsExpired={setIsExpired} />
+          <NFTContainer network={network} setIsExpired={setIsExpired} candyMachine={candyMachine} />
         </Container>
       </OuterContainer>
     </WalletModalProvider>
-    // </WalletConnectionProvider>
   );
 }
 

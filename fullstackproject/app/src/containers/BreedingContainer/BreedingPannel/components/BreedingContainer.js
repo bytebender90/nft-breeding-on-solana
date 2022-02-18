@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
-import { BN, Program, Provider, web3 } from "@project-serum/anchor";
+import { Program, Provider, web3 } from "@project-serum/anchor";
 import * as anchor from "@project-serum/anchor";
 import {
   TOKEN_PROGRAM_ID,
@@ -19,17 +19,14 @@ import NftListsModal from "./NFTListModal";
 import Timer from "./Timer";
 import idl from "../idl.json";
 import adultNfts from "../gib-meta.json";
-import tokenOwner from "../owner-keypair.json";
 import { fetchNFTsOwnedByWallet } from "../lib/fetchNFTsByWallet";
-
-const { SystemProgram, Keypair } = web3;
 
 const opts = {
   preflightCommitment: "processed",
 };
 const programID = new PublicKey(idl.metadata.address);
 
-const BreedingContainer = ({ setIsExpired }) => {
+const BreedingContainer = ({ candyMachine, setIsExpired }) => {
   const [isBreeding, setIsBreeding] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5);
   const [isCreated, setIsCreated] = useState(false);
@@ -94,6 +91,7 @@ const BreedingContainer = ({ setIsExpired }) => {
 
   async function initailize() {
     try {
+      setLoading(false);
       const userNFTs = await getNFTList();
 
       setTimeout(async () => {
@@ -139,8 +137,6 @@ const BreedingContainer = ({ setIsExpired }) => {
           setIsCreated(false);
           setTimeRemaining(0);
         }
-
-        setLoading(false);
       }, 5000)
     } catch (err) {
       console.log("new account");
@@ -246,7 +242,7 @@ const BreedingContainer = ({ setIsExpired }) => {
         mint,
         toPublickey
       );
-      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1000000000;
+      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1;
 
       await program.rpc.updateUser(
         requestedAt,
@@ -297,60 +293,20 @@ const BreedingContainer = ({ setIsExpired }) => {
     return associatedTokenAddress;
   }
 
-  async function handleMintToken() {
-    const connection = new Connection(network, "processed");
-    const mint = new PublicKey(REACT_APP_TOKEN_ACCOUNT);
-    const provider = await getProvider();
-    const program = new Program(idl, programID, provider);
-    const to = await createAssociatedTokenAccount(
-      connection,
-      mint,
-      program.provider.wallet.publicKey
-    );
-
-    const authority = program.provider.wallet.publicKey;
-    const [user, bump] = await PublicKey.findProgramAddress(
-      [authority.toBuffer()],
-      program.programId
-    );
-
-    const ownerKeypair = Keypair.fromSecretKey(new Uint8Array(tokenOwner));
-    const currentTimeData = await getWorldTime();
-    const tokenApprovedDate = currentTimeData.data.datetime;
-
-    try {
-      const tx = await program.rpc.mintTokens(new anchor.BN(10000000000), {
-        accounts: {
-          user,
-          owner: ownerKeypair.publicKey,
-          signer: ownerKeypair.publicKey,
-          mint,
-          to,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        },
-        signers: [ownerKeypair]
-      });
-
-      console.log("tx: ", tx);
-    } catch (error) {
-      console.log("transaction error: ", error)
-    }
-  }
-
-  async function getPubkey(array) {
-    return Keypair.fromSecretKey(new Uint8Array(array));
-  }
-
   const handleBreedingStart = async () => {
-    if (firstNft && secNft) {
-      if (firstNft.data.uri != secNft.data.uri) {
-        if (isUserExist) await updateBreedingUser();
-        else await createBreedingUser();
+    if (candyMachine?.state.isSoldOut)
+      alert("Can't breed now. The Storage is empty")
+    else {
+      if (firstNft && secNft) {
+        if (firstNft.data.uri != secNft.data.uri) {
+          if (isUserExist) await updateBreedingUser();
+          else await createBreedingUser();
+        } else {
+          alert("Can't use one adult for breeding")
+        }
       } else {
-        alert("Can't use one adult for breeding")
+        alert("Select two NFTs!");
       }
-    } else {
-      alert("Select two NFTs!");
     }
   };
 

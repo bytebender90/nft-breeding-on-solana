@@ -38,7 +38,7 @@ export const MintButton = ({
   const getMintButtonContent = () => {
     return 'GET A NEW NFT';
   };
-  console.log("===============================", candyMachine?.state.itemsRemaining)
+
   return (
     <CTAButton
       disabled={
@@ -47,6 +47,7 @@ export const MintButton = ({
         isMinting ||
         !candyMachine?.state.isActive
       }
+      hidden={candyMachine?.state.isSoldOut}
       onClick={async () => {
         setClicked(true);
         if (candyMachine?.state.isActive && candyMachine?.state.gatekeeper) {

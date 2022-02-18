@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { Col, Modal, Row, Spinner } from "react-bootstrap";
 import { NFTItem } from "./NFTItem";
 
