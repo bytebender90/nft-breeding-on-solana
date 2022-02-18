@@ -137,7 +137,7 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
           setIsCreated(false);
           setTimeRemaining(0);
         }
-      }, 5000)
+      }, 100)
     } catch (err) {
       console.log("new account");
     }
@@ -242,7 +242,7 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
         mint,
         toPublickey
       );
-      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1;
+      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1000000000;
 
       await program.rpc.updateUser(
         requestedAt,
@@ -268,18 +268,6 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
     } catch (err) {
       console.log("Transaction error: ", err);
     }
-  }
-
-  async function getBalance(mintPda) {
-    const provider = await getProvider();
-    const program = new Program(idl, programID, provider);
-    const parsedTokenAccountsByOwner =
-      await program.provider.connection.getParsedTokenAccountsByOwner(
-        program.provider.wallet.publicKey,
-        { mint: mintPda }
-      );
-    let balance = parsedTokenAccountsByOwner.value[0].account.data.parsed.info.tokenAmount.uiAmount;
-    return balance;
   }
 
   async function createAssociatedTokenAccount(connection, mint, publicKey) {
