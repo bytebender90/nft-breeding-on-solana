@@ -315,7 +315,7 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
   };
 
   const onCompleteBrReq = () => {
-    setIsBreeding(false);
+    // setIsBreeding(false);
     setIsExpired(true);
   };
 

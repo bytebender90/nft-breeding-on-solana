@@ -13,6 +13,10 @@ import {
 import { MintButton } from './MintButton';
 import BreedingPannel from './BreedingPannel';
 import { Spinner } from 'react-bootstrap';
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import * as anchor from "@project-serum/anchor";
+import { fetchNFTsOwnedByWallet } from './BreedingPannel/lib/fetchNFTsByWallet';
+import idl from "./BreedingPannel/idl.json";
 
 const ConnectButton = styled(WalletDialogButton)`
   width: 100%;
@@ -77,10 +81,52 @@ const Home = (props) => {
     }
   }, [anchorWallet, props.candyMachineId, props.connection]);
 
+  const network = clusterApiUrl(process.env.REACT_APP_SOLANA_NETWORK);
+  const connection = new Connection(network, "processed");
+
+  async function getProvider() {
+    const provider = new anchor.Provider(connection, wallet, "processed");
+    return provider;
+  }
+
+  async function getNFTList() {
+    const { publicKey } = wallet;
+    if (!publicKey) {
+      return null;
+    };
+    let userNFTs;
+    try {
+      userNFTs = await fetchNFTsOwnedByWallet(
+        new PublicKey(publicKey),
+        connection
+      );
+
+      if (typeof userNFTs === "undefined") {
+        return null;
+      } else {
+        return userNFTs;
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      return null;
+    }
+  }
+
   const onMint = async () => {
     try {
-      const valid = true;
-      if (valid) {
+      const userNFTs = await getNFTList();
+      const provider = await getProvider();
+      const programID = new PublicKey(idl.metadata.address);
+      const program = new anchor.Program(idl, programID, provider);
+      const authority = program.provider.wallet.publicKey;
+      const [user, bump] = await PublicKey.findProgramAddress(
+        [authority.toBuffer()],
+        program.programId
+      );
+      const account = await program.account.user.fetch(user);
+      const furtherCount = account.furtherCount;
+
+      if (furtherCount > userNFTs?.length) {
         setIsUserMinting(true);
         document.getElementById('#identity')?.click();
         if (wallet.connected && candyMachine?.program && wallet.publicKey) {
@@ -121,7 +167,7 @@ const Home = (props) => {
         setIsExpired(false)
         setAlertState({
           open: true,
-          message: 'Failed! You don\'t get a new NFT without paying $EDS token!',
+          message: 'Failed! Please try again!',
           severity: 'error',
         });
       }

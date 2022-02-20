@@ -15,20 +15,21 @@ export function NFTItem({ item, setParentNft }) {
   const [NFTData, setNFTData] = useState(null);
   const [isLoading, setLoding] = useState(true);
 
-  useEffect(() => {
+  useEffect(async () => {
     async function getData() {
       let data = {};
       try {
         data = await (await fetch(item?.data?.uri)).json();
-        setLoding(false);
       } catch (err) {
         console.log("nft fetch error: ", err);
       }
-      setTimeout(() => {
-        setNFTData(data);
-      }, 100)
+      setNFTData(data);
     }
-    getData();
+    await getData();
+    
+    setTimeout(() => {
+      setLoding(false);
+    }, 100)
   }, [item]);
   return (
     <ItemContainer className="text-center">
