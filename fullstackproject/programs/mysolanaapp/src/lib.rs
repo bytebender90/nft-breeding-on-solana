@@ -18,7 +18,6 @@ mod mysolanaapp {
         timestamp: String,
         first_img: String,
         second_img: String,
-        amount: u64,
     ) -> Result<()> {
         ctx.accounts.user.name = name;
         ctx.accounts.user.timestamp = timestamp;
@@ -30,29 +29,6 @@ mod mysolanaapp {
         ctx.accounts.user.authority = *ctx.accounts.authority.key;
         ctx.accounts.user.bump = *ctx.bumps.get("user").unwrap();
 
-        let from_info = &mut ctx.accounts.author;
-        let from_token_info = &mut ctx.accounts.from;
-        let to_token_info = &mut ctx.accounts.to;
-        let token_info = &mut ctx.accounts.token_program;
-
-        let ix = spl_token::instruction::transfer(
-            token_info.key,
-            from_token_info.key,
-            to_token_info.key,
-            from_info.key,
-            &[from_info.key],
-            amount,
-        )?;
-        invoke(
-            &ix,
-            &[
-                from_token_info.clone(),
-                to_token_info.clone(),
-                from_info.clone(),
-                token_info.clone(),
-            ],
-        )?;
-
         Ok(())
     }
     pub fn update_user(
@@ -61,36 +37,12 @@ mod mysolanaapp {
         current_count: u16,
         first_img: String,
         second_img: String,
-        amount: u64,
     ) -> Result<()> {
         ctx.accounts.user.timestamp = timestamp;
         ctx.accounts.user.is_confirmed = true;
         ctx.accounts.user.further_count = current_count + 1;
         ctx.accounts.user.first_img = first_img;
         ctx.accounts.user.second_img = second_img;
-
-        let from_info = &mut ctx.accounts.author;
-        let from_token_info = &mut ctx.accounts.from;
-        let to_token_info = &mut ctx.accounts.to;
-        let token_info = &mut ctx.accounts.token_program;
-
-        let ix = spl_token::instruction::transfer(
-            token_info.key,
-            from_token_info.key,
-            to_token_info.key,
-            from_info.key,
-            &[from_info.key],
-            amount,
-        )?;
-        invoke(
-            &ix,
-            &[
-                from_token_info.clone(),
-                to_token_info.clone(),
-                from_info.clone(),
-                token_info.clone(),
-            ],
-        )?;
         Ok(())
     }
     pub fn transfer_tokens(ctx: Context<TransferTokens>, amount: u64) -> ProgramResult {
