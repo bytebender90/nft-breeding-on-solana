@@ -102,55 +102,58 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
         });
       }
 
-      setUserExist(true);
-
       setTimeout(async () => {
-        const provider = await getProvider();
-        const program = new Program(idl, programID, provider);
-        const authority = program.provider.wallet.publicKey;
-        const [user, bump] = await PublicKey.findProgramAddress(
-          [authority.toBuffer()],
-          program.programId
-        );
-        const account = await program.account.user.fetch(user);
-        const requestedAt = account.timestamp; // timestamp
-        const isCreated = account.isConfirmed; // status of breeding request
-        const furtherCount = account.furtherCount; // number of NFTs after breeding
-        const firstImg = account.firstImg;
-        const secondImg = account.secondImg;
-        
-        if (userNFTsImgList.includes(firstImg) && userNFTsImgList.includes(secondImg)) {
-          const firstNft = { NFTData: { image: firstImg } };
-          const secNft = { NFTData: { image: secondImg } };
+        try {
+          const provider = await getProvider();
+          const program = new Program(idl, programID, provider);
+          const authority = program.provider.wallet.publicKey;
+          const [user, bump] = await PublicKey.findProgramAddress(
+            [authority.toBuffer()],
+            program.programId
+          );
+          const account = await program.account.user.fetch(user);
+          const requestedAt = account.timestamp; // timestamp
+          const isCreated = account.isConfirmed; // status of breeding request
+          const furtherCount = account.furtherCount; // number of NFTs after breeding
+          const firstImg = account.firstImg;
+          const secondImg = account.secondImg;
+          setUserExist(isCreated);
 
-          let timeRemaining = 0;
-          try {
-            timeRemaining = requestedAt
-              ? await getTimeRemaining(requestedAt)
-              : 0;
-          } catch (err) {
-            window.location.reload();
+          if (userNFTsImgList.includes(firstImg) && userNFTsImgList.includes(secondImg)) {
+            const firstNft = { NFTData: { image: firstImg } };
+            const secNft = { NFTData: { image: secondImg } };
+
+            let timeRemaining = 0;
+            try {
+              timeRemaining = requestedAt
+                ? await getTimeRemaining(requestedAt)
+                : 0;
+            } catch (err) {
+              window.location.reload();
+            }
+
+            if (timeRemaining > 0) {
+              setFirstNft(firstNft);
+              setSecNft(secNft)
+
+              setTimeRemaining(timeRemaining);
+              setIsCreated(true);
+              setIsBreeding(true);
+            } else {
+              setFirstNft(null);
+              setSecNft(null)
+
+              if (isCreated && userNFTs?.length < furtherCount) setIsExpired(true);
+              setIsCreated(false);
+              setTimeRemaining(0);
+            }
           }
-
-          if (timeRemaining > 0) {
-            setFirstNft(firstNft);
-            setSecNft(secNft)
-
-            setTimeRemaining(timeRemaining);
-            setIsCreated(true);
-            setIsBreeding(true);
-          } else {
-            setFirstNft(null);
-            setSecNft(null)
-
-            if (isCreated && userNFTs?.length < furtherCount) setIsExpired(true);
-            setIsCreated(false);
-            setTimeRemaining(0);
-          }
+        } catch(error) {
+          console.log("new account");
         }
       }, 1500)
     } catch (err) {
-      console.log("new account");
+      console.log("getting user data: ", err);
     }
   }
 
