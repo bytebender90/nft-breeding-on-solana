@@ -115,6 +115,13 @@ const Home = (props) => {
   const onMint = async () => {
     try {
       const userNFTs = await getNFTList();
+      const userNFTsMintList = [];
+      if (userNFTs) {
+        userNFTs.forEach(item => {
+          userNFTsMintList.push(item.mint);
+        });
+      }
+
       const provider = await getProvider();
       const programID = new PublicKey(idl.metadata.address);
       const program = new anchor.Program(idl, programID, provider);
@@ -124,44 +131,57 @@ const Home = (props) => {
         program.programId
       );
       const account = await program.account.user.fetch(user);
-      const furtherCount = account.furtherCount;
+      const {
+        furtherCount,
+        firstMint,
+        secondMint
+      } = account;
 
-      if (furtherCount > userNFTs?.length) {
-        setIsUserMinting(true);
-        document.getElementById('#identity')?.click();
-        if (wallet.connected && candyMachine?.program && wallet.publicKey) {
-          const mintTxId = (
-            await mintOneToken(candyMachine, wallet.publicKey)
-          )[0];
+      if (firstMint && secondMint && userNFTsMintList.includes(firstMint) && userNFTsMintList.includes(secondMint)) {
+        if (furtherCount > userNFTs?.length) {
+          setIsUserMinting(true);
+          document.getElementById('#identity')?.click();
+          if (wallet.connected && candyMachine?.program && wallet.publicKey) {
+            const mintTxId = (
+              await mintOneToken(candyMachine, wallet.publicKey)
+            )[0];
 
-          let status = { err: true };
-          if (mintTxId) {
-            status = await awaitTransactionSignatureConfirmation(
-              mintTxId,
-              props.txTimeout,
-              props.connection,
-              true,
-            );
+            let status = { err: true };
+            if (mintTxId) {
+              status = await awaitTransactionSignatureConfirmation(
+                mintTxId,
+                props.txTimeout,
+                props.connection,
+                true,
+              );
+            }
+
+            if (status && !status.err) {
+              setIsExpired(false)
+              setLoading(true)
+              setAlertState({
+                open: true,
+                message: 'Succeeded!',
+                severity: 'success',
+              });
+              setTimeout(() => {
+                window.location.reload();
+              }, 1500)
+            } else {
+              setAlertState({
+                open: true,
+                message: 'Failed! Please try again!',
+                severity: 'error',
+              });
+            }
           }
-
-          if (status && !status.err) {
-            setIsExpired(false)
-            setLoading(true)
-            setAlertState({
-              open: true,
-              message: 'Succeeded!',
-              severity: 'success',
-            });
-            setTimeout(() => {
-              window.location.reload();
-            }, 1500)
-          } else {
-            setAlertState({
-              open: true,
-              message: 'Failed! Please try again!',
-              severity: 'error',
-            });
-          }
+        } else {
+          setIsExpired(false)
+          setAlertState({
+            open: true,
+            message: 'Failed! Please try again!',
+            severity: 'error',
+          });
         }
       } else {
         setIsExpired(false)
@@ -179,7 +199,7 @@ const Home = (props) => {
         } else if (error.message.indexOf('0x137')) {
           message = `SOLD OUT!`;
         } else if (error.message.indexOf('0x135')) {
-          message = `Insufficient funds to mint. Please fund your wallet.`;
+          message = `Insufficient funds for transaction. Please fund your wallet.`;
         }
       } else {
         if (error.code === 311) {

@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
-import { Program, Provider, web3 } from "@project-serum/anchor";
-import * as anchor from "@project-serum/anchor";
 import {
-  TOKEN_PROGRAM_ID,
-  Token,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+  Program,
+  Provider,
+  // web3
+} from "@project-serum/anchor";
+import * as anchor from "@project-serum/anchor";
+// import {
+//   TOKEN_PROGRAM_ID,
+//   Token,
+//   ASSOCIATED_TOKEN_PROGRAM_ID,
+// } from "@solana/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 
@@ -28,7 +32,7 @@ const programID = new PublicKey(idl.metadata.address);
 
 const BreedingContainer = ({ candyMachine, setIsExpired }) => {
   const [isBreeding, setIsBreeding] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(5);
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [isCreated, setIsCreated] = useState(false);
   const [isUserExist, setUserExist] = useState(false);
 
@@ -47,8 +51,8 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
     REACT_APP_ELAPSED_TIME,
     REACT_APP_SOLANA_NETWORK,
     REACT_APP_TOKEN_ACCOUNT,
-    REACT_APP_DIPOSIT_WALLET_ADDRESS,
-    REACT_APP_DIPOSIT_TOKEN_AMOUNT,
+    // REACT_APP_DIPOSIT_WALLET_ADDRESS,
+    // REACT_APP_DIPOSIT_TOKEN_AMOUNT,
   } = process.env;
 
   const network = clusterApiUrl(REACT_APP_SOLANA_NETWORK);
@@ -93,6 +97,14 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
     try {
       setLoading(false);
       const userNFTs = await getNFTList();
+      const userNFTsMintList = [];
+      if (userNFTs) {
+        userNFTs.forEach(item => {
+          userNFTsMintList.push(item.mint);
+        });
+      }
+
+      setUserExist(true);
 
       setTimeout(async () => {
         const provider = await getProvider();
@@ -103,41 +115,46 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
           program.programId
         );
         const account = await program.account.user.fetch(user);
-        const requestedAt = account.timestamp; // timestamp
-        const isCreated = account.isConfirmed; // status of breeding request
-        const furtherCount = account.furtherCount; // number of NFTs after breeding
-        const firstImg = account.firstImg;
-        const secondImg = account.secondImg;
-        const firstNft = { NFTData: { image: firstImg } };
-        const secNft = { NFTData: { image: secondImg } };
-        let timeRemaining = 0;
-        try {
-          timeRemaining = requestedAt
-            ? await getTimeRemaining(requestedAt)
-            : 0;
-        } catch (err) {
-          window.location.reload();
-        }
+        const {
+          requestedAt,
+          isCreated,
+          furtherCount,
+          firstImg,
+          secondImg,
+          firstMint,
+          secondMint
+        } = account;
 
-        if (timeRemaining > 0) {
-          setFirstNft(firstNft);
-          setSecNft(secNft)
-        } else {
-          setFirstNft(null);
-          setSecNft(null)
-        }
+        if (firstMint && secondMint && userNFTsMintList.includes(firstMint) && userNFTsMintList.includes(secondMint)) {
+          const firstNft = { NFTData: { image: firstImg } };
+          const secNft = { NFTData: { image: secondImg } };
 
-        setUserExist(account.isConfirmed);
-        if (timeRemaining > 0) {
-          setTimeRemaining(timeRemaining);
-          setIsCreated(true);
-          setIsBreeding(true);
-        } else {
-          if (isCreated && userNFTs?.length < furtherCount) setIsExpired(true);
-          setIsCreated(false);
-          setTimeRemaining(0);
+          let timeRemaining = 0;
+          try {
+            timeRemaining = requestedAt
+              ? await getTimeRemaining(requestedAt)
+              : 0;
+          } catch (err) {
+            window.location.reload();
+          }
+
+          if (timeRemaining > 0) {
+            setFirstNft(firstNft);
+            setSecNft(secNft)
+
+            setTimeRemaining(timeRemaining);
+            setIsCreated(true);
+            setIsBreeding(true);
+          } else {
+            setFirstNft(null);
+            setSecNft(null)
+
+            if (isCreated && userNFTs?.length < furtherCount) setIsExpired(true);
+            setIsCreated(false);
+            setTimeRemaining(0);
+          }
         }
-      }, 100)
+      }, 1500)
     } catch (err) {
       console.log("new account");
     }
@@ -170,37 +187,18 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
       const currentTimeData = await getWorldTime();
       const requestedAt = currentTimeData.data.datetime;
 
-      const mint = new PublicKey(REACT_APP_TOKEN_ACCOUNT);
-      const from = await createAssociatedTokenAccount(
-        connection,
-        mint,
-        program.provider.wallet.publicKey
-      );
-
-      const toPublickey = new PublicKey(REACT_APP_DIPOSIT_WALLET_ADDRESS);
-      const to = await createAssociatedTokenAccount(
-        connection,
-        mint,
-        toPublickey
-      );
-
-      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1000000000;
-
       await program.rpc.createUser(
         provider.wallet.publicKey.toString(),
         nftLists?.length,
         requestedAt,
         firstNft?.NFTData?.image,
         secNft?.NFTData?.image,
-        new anchor.BN(amount),
+        firstNft?.mint,
+        secNft?.mint,
         {
           accounts: {
             user,
             authority,
-            author: program.provider.wallet.publicKey,
-            to,
-            from,
-            tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
           },
         }
@@ -226,37 +224,22 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
         [authority.toBuffer()],
         program.programId
       );
+      console.log("firstNFT", firstNft?.mint)
+      console.log("secNFT",  secNft?.mint)
 
       const currentTimeData = await getWorldTime();
       const requestedAt = currentTimeData.data.datetime;
-      const mint = new PublicKey(REACT_APP_TOKEN_ACCOUNT);
-      const from = await createAssociatedTokenAccount(
-        connection,
-        mint,
-        program.provider.wallet.publicKey
-      );
-
-      const toPublickey = new PublicKey(REACT_APP_DIPOSIT_WALLET_ADDRESS);
-      const to = await createAssociatedTokenAccount(
-        connection,
-        mint,
-        toPublickey
-      );
-      const amount = REACT_APP_DIPOSIT_TOKEN_AMOUNT * 1000000000;
 
       await program.rpc.updateUser(
         requestedAt,
         nftLists?.length,
         firstNft?.NFTData?.image,
         secNft?.NFTData?.image,
-        new anchor.BN(amount),
+        firstNft?.mint,
+        secNft?.mint,
         {
           accounts: {
             user,
-            author: program.provider.wallet.publicKey,
-            to,
-            from,
-            tokenProgram: TOKEN_PROGRAM_ID,
           },
         });
       const account = await program.account.user.fetch(user);
@@ -270,23 +253,12 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
     }
   }
 
-  async function createAssociatedTokenAccount(connection, mint, publicKey) {
-    const associatedTokenAddress = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      mint,
-      publicKey
-    );
-
-    return associatedTokenAddress;
-  }
-
   const handleBreedingStart = async () => {
     if (candyMachine?.state.isSoldOut)
       alert("Can't breed now. The Storage is empty")
     else {
       if (firstNft && secNft) {
-        if (firstNft.data.uri != secNft.data.uri) {
+        if (firstNft.data.uri !== secNft.data.uri) {
           if (isUserExist) await updateBreedingUser();
           else await createBreedingUser();
         } else {
@@ -305,7 +277,7 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
 
   const setParentNft = (selectedItem) => {
     if (
-      selectedItem.NFTData.symbol == "ED" && selectedItem.NFTData.name.includes("Ehecatl Dragon") && adultList.includes(selectedItem.NFTData.edition)) {
+      selectedItem.NFTData.symbol === "ED" && selectedItem.NFTData.name.includes("Ehecatl Dragon") && adultList.includes(selectedItem.NFTData.edition)) {
       if (parent == "firstNft") setFirstNft(selectedItem);
       else setSecNft(selectedItem);
       setShowModal(false);

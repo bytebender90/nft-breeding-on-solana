@@ -16,26 +16,6 @@
           "isSigner": true
         },
         {
-          "name": "author",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -63,8 +43,12 @@
           "type": "string"
         },
         {
-          "name": "amount",
-          "type": "u64"
+          "name": "firstMint",
+          "type": "string"
+        },
+        {
+          "name": "secondMint",
+          "type": "string"
         }
       ]
     },
@@ -74,26 +58,6 @@
         {
           "name": "user",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "author",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -115,8 +79,12 @@
           "type": "string"
         },
         {
-          "name": "amount",
-          "type": "u64"
+          "name": "firstMint",
+          "type": "string"
+        },
+        {
+          "name": "secondMint",
+          "type": "string"
         }
       ]
     },
@@ -243,6 +211,14 @@
           },
           {
             "name": "secondImg",
+            "type": "string"
+          },
+          {
+            "name": "firstMint",
+            "type": "string"
+          },
+          {
+            "name": "secondMint",
             "type": "string"
           }
         ]
