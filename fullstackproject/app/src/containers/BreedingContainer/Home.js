@@ -115,10 +115,12 @@ const Home = (props) => {
   const onMint = async () => {
     try {
       const userNFTs = await getNFTList();
-      const userNFTsMintList = [];
+      const userNFTsImgList = [];
+      let data = {};
       if (userNFTs) {
-        userNFTs.forEach(item => {
-          userNFTsMintList.push(item.mint);
+        userNFTs.forEach(async (item) => {
+          data = await (await fetch(item?.data?.uri)).json();
+          userNFTsImgList.push(data.image);
         });
       }
 
@@ -131,13 +133,11 @@ const Home = (props) => {
         program.programId
       );
       const account = await program.account.user.fetch(user);
-      const {
-        furtherCount,
-        firstMint,
-        secondMint
-      } = account;
+      const furtherCount = account.furtherCount; 
+      const firstImg = account.firstImg;
+      const secondImg = account.secondImg;
 
-      if (firstMint && secondMint && userNFTsMintList.includes(firstMint) && userNFTsMintList.includes(secondMint)) {
+      if (userNFTsImgList.includes(firstImg) && userNFTsImgList.includes(secondImg)) {
         if (furtherCount > userNFTs?.length) {
           setIsUserMinting(true);
           document.getElementById('#identity')?.click();
@@ -190,6 +190,9 @@ const Home = (props) => {
           message: 'Failed! Please try again!',
           severity: 'error',
         });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500)
       }
     } catch (error) {
       let message = error.msg || 'Failed! Please try again!';
