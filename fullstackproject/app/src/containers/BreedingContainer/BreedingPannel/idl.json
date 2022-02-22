@@ -16,26 +16,6 @@
           "isSigner": true
         },
         {
-          "name": "author",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -70,26 +50,6 @@
         {
           "name": "user",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "author",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -273,6 +233,6 @@
     }
   ],
   "metadata": {
-    "address": "CUGkHeDDmwSBrMSrBejLQLLGX3KqtZHRGCvvzooYpbLY"
+    "address": "38xrJK8HVVJqztDQvk8KwwWtBUyQSZzGjKL2z1kvPXbK"
   }
 }

@@ -1,7 +1,6 @@
 use anchor_lang::accounts::loader::Loader;
 use anchor_lang::prelude::*;
 
-use anchor_spl::token::{self, Burn, MintTo, SetAuthority, Transfer};
 use solana_program::program::invoke;
 use spl_token::*;
 
@@ -120,27 +119,13 @@ pub struct CreateUser<'info> {
     user: Account<'info, User>,
     #[account(mut)]
     authority: Signer<'info>,
-    #[account(mut)]
-    pub author: AccountInfo<'info>,
-    #[account(mut)]
-    pub from: AccountInfo<'info>,
-    #[account(mut)]
-    pub to: AccountInfo<'info>,
-    pub token_program: AccountInfo<'info>,
     system_program: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]
 pub struct UpdateUser<'info> {
     #[account(mut)]
-    user: Account<'info, User>,
-    #[account(mut)]
-    pub author: AccountInfo<'info>,
-    #[account(mut)]
-    pub from: AccountInfo<'info>,
-    #[account(mut)]
-    pub to: AccountInfo<'info>,
-    pub token_program: AccountInfo<'info>,
+    user: Account<'info, User>, 
 }
 
 #[derive(Accounts)]

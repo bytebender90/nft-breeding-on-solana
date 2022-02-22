@@ -148,7 +148,7 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
               setTimeRemaining(0);
             }
           }
-        } catch(error) {
+        } catch (error) {
           console.log("new account");
         }
       }, 1500)
@@ -209,8 +209,8 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
             user,
             authority,
             author: program.provider.wallet.publicKey,
-            to,
             from,
+            to,
             tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
           },
@@ -336,10 +336,21 @@ const BreedingContainer = ({ candyMachine, setIsExpired }) => {
     setAdultList(adultList);
   }
 
-  useEffect(async () => {
+  useEffect(() => {
     window.Buffer = window.Buffer || require("buffer").Buffer;
-    await initailize();
-    await fetchAdultEditionList();
+    const { solana } = window;
+
+    (async () => {
+      await initailize();
+      await fetchAdultEditionList();
+    })();
+
+    return () => {
+      (async () => {
+        console.log("componentwillunmount")
+        await solana.disconnect();
+      })()
+    }
   }, []);
 
   return isLoading ? (
